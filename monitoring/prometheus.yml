@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'webserver'
+    static_configs:
+      - targets: ['web-server-ip:9216']
+
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['localhost:9216'] # MongoDB exporter

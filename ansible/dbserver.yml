@@ -1,0 +1,41 @@
+- hosts: db
+  become: yes
+  tasks:
+    - name: Import MongoDB public key
+      apt_key:
+        url: https://www.mongodb.org/static/pgp/server-6.0.asc
+        state: present
+
+    - name: Add MongoDB repository
+      apt_repository:
+        repo: deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse
+        state: present
+        filename: mongodb
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install MongoDB
+      apt:
+        name: mongodb-org
+        state: present
+
+    - name: Start and enable MongoDB
+      service:
+        name: mongod
+        state: started
+        enabled: yes
+
+    - name: Allow remote access
+      lineinfile:
+        path: /etc/mongod.conf
+        regexp: '^ *bindIp:'
+        line: '  bindIp: 0.0.0.0'
+      notify: Restart MongoDB
+
+  handlers:
+    - name: Restart MongoDB
+      service:
+        name: mongod
+        state: restarted
